@@ -1,0 +1,49 @@
+{
+  "iconDefinitions": {
+    "_maso_file": {
+      "iconPath": "./icon.png"
+    },
+    "_maso_regular": {
+      "iconPath": "./icon.png"
+    },
+    "_maso_burst": {
+      "iconPath": "./icon.png"
+    }
+  },
+  "fileExtensions": {
+    "maso": "_maso_file"
+  },
+  "fileNames": {
+    "regular.maso": "_maso_regular",
+    "burst.maso": "_maso_burst"
+  },
+  "folderNames": {},
+  "folderNamesExpanded": {},
+  "languageIds": {
+    "maso": "_maso_file"
+  },
+  "light": {
+    "fileExtensions": {
+      "maso": "_maso_file"
+    },
+    "fileNames": {
+      "regular.maso": "_maso_regular",
+      "burst.maso": "_maso_burst"
+    },
+    "languageIds": {
+      "maso": "_maso_file"
+    }
+  },
+  "highContrast": {
+    "fileExtensions": {
+      "maso": "_maso_file"
+    },
+    "fileNames": {
+      "regular.maso": "_maso_regular",
+      "burst.maso": "_maso_burst"
+    },
+    "languageIds": {
+      "maso": "_maso_file"
+    }
+  }
+}

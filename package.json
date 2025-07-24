@@ -26,9 +26,6 @@
     "Other",
     "Programming Languages"
   ],
-  "activationEvents": [
-    "onLanguage:json"
-  ],
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
@@ -41,7 +38,11 @@
         "extensions": [
           ".maso"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/icon.png",
+          "dark": "./icons/icon.png"
+        }
       }
     ],
     "grammars": [
@@ -54,7 +55,12 @@
     "commands": [
       {
         "command": "maso-file-support.validateFile",
-        "title": "Validate MASO File"
+        "title": "Validate MASO File",
+        "category": "MASO",
+        "icon": {
+          "light": "./icons/icon.png",
+          "dark": "./icons/icon.png"
+        }
       }
     ],
     "configuration": {
