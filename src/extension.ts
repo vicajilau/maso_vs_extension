@@ -1,53 +1,6 @@
 import * as vscode from 'vscode';
-import Ajv from 'ajv';
-
-// Schema para validar archivos MASO
-const masoSchema = {
-  type: 'object',
-  properties: {
-    metadata: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        version: { type: 'string' },
-        description: { type: 'string' }
-      },
-      required: ['name', 'version', 'description'],
-      additionalProperties: false
-    },
-    processes: {
-      type: 'object',
-      properties: {
-        mode: { 
-          type: 'string',
-          enum: ['regular', 'priority', 'round_robin']
-        },
-        elements: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              arrival_time: { type: 'number', minimum: 0 },
-              service_time: { type: 'number', minimum: 0 },
-              enabled: { type: 'boolean' }
-            },
-            required: ['id', 'arrival_time', 'service_time', 'enabled'],
-            additionalProperties: false
-          }
-        }
-      },
-      required: ['mode', 'elements'],
-      additionalProperties: false
-    }
-  },
-  required: ['metadata', 'processes'],
-  additionalProperties: false
-};
 
 let diagnosticCollection: vscode.DiagnosticCollection;
-const ajv = new Ajv({ allErrors: true });
-const validate = ajv.compile(masoSchema);
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('MASO File Support extension is now active!');
@@ -105,20 +58,20 @@ function validateMasoFile(document: vscode.TextDocument) {
     const text = document.getText();
     const jsonData = JSON.parse(text);
     
-    const isValid = validate(jsonData);
+    // Validaciones básicas de estructura
+    validateBasicStructure(document, jsonData, diagnostics);
     
-    if (!isValid && validate.errors) {
-      for (const error of validate.errors) {
-        const diagnostic = createDiagnostic(document, error);
-        if (diagnostic) {
-          diagnostics.push(diagnostic);
-        }
+    // Validaciones específicas según el modo
+    if (jsonData.processes && jsonData.processes.mode && jsonData.processes.elements) {
+      const mode = jsonData.processes.mode;
+      
+      if (mode === 'burst') {
+        validateBurstMode(document, jsonData.processes.elements, diagnostics);
+      } else if (mode === 'regular') {
+        validateRegularMode(document, jsonData.processes.elements, diagnostics);
+      } else {
+        addDiagnostic(document, diagnostics, `Invalid mode: ${mode}. Must be one of: regular, burst`, 'mode');
       }
-    }
-    
-    // Validaciones específicas adicionales
-    if (jsonData.processes && jsonData.processes.elements) {
-      validateProcessElements(document, jsonData.processes.elements, diagnostics);
     }
     
   } catch (error) {
@@ -135,80 +88,173 @@ function validateMasoFile(document: vscode.TextDocument) {
   diagnosticCollection.set(document.uri, diagnostics);
 }
 
-function createDiagnostic(document: vscode.TextDocument, error: any): vscode.Diagnostic | null {
+function validateBasicStructure(document: vscode.TextDocument, jsonData: any, diagnostics: vscode.Diagnostic[]) {
+  // Validar metadata
+  if (!jsonData.metadata) {
+    addDiagnostic(document, diagnostics, 'Missing required field: metadata', 'metadata');
+  } else {
+    if (!jsonData.metadata.name) {
+      addDiagnostic(document, diagnostics, 'Missing required field: metadata.name', 'name');
+    }
+    if (!jsonData.metadata.version) {
+      addDiagnostic(document, diagnostics, 'Missing required field: metadata.version', 'version');
+    }
+    if (!jsonData.metadata.description) {
+      addDiagnostic(document, diagnostics, 'Missing required field: metadata.description', 'description');
+    }
+  }
+  
+  // Validar processes
+  if (!jsonData.processes) {
+    addDiagnostic(document, diagnostics, 'Missing required field: processes', 'processes');
+  } else {
+    if (!jsonData.processes.mode) {
+      addDiagnostic(document, diagnostics, 'Missing required field: processes.mode', 'mode');
+    }
+    if (!jsonData.processes.elements || !Array.isArray(jsonData.processes.elements)) {
+      addDiagnostic(document, diagnostics, 'Missing or invalid field: processes.elements (must be an array)', 'elements');
+    }
+  }
+}
+
+function validateRegularMode(document: vscode.TextDocument, elements: any[], diagnostics: vscode.Diagnostic[]) {
+  const ids = new Set<string>();
+  
+  elements.forEach((element, index) => {
+    const elementPath = `elements[${index}]`;
+    
+    // Verificar campos requeridos
+    if (!element.id) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.id`, 'id');
+    }
+    if (element.arrival_time === undefined || element.arrival_time === null) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.arrival_time`, 'arrival_time');
+    }
+    if (element.service_time === undefined || element.service_time === null) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.service_time`, 'service_time');
+    }
+    if (element.enabled === undefined || element.enabled === null) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.enabled`, 'enabled');
+    }
+    
+    // Verificar tipos y valores
+    if (element.arrival_time < 0) {
+      addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be non-negative`, 'arrival_time');
+    }
+    if (element.service_time < 0) {
+      addDiagnostic(document, diagnostics, `${elementPath}.service_time must be non-negative`, 'service_time');
+    }
+    
+    // Verificar IDs duplicados
+    if (element.id && ids.has(element.id)) {
+      addDiagnostic(document, diagnostics, `Duplicate process ID: ${element.id}`, 'id');
+    }
+    if (element.id) {
+      ids.add(element.id);
+    }
+  });
+}
+
+function validateBurstMode(document: vscode.TextDocument, elements: any[], diagnostics: vscode.Diagnostic[]) {
+  const ids = new Set<string>();
+  
+  elements.forEach((element, index) => {
+    const elementPath = `elements[${index}]`;
+    
+    // Verificar campos requeridos para modo burst
+    if (!element.id) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.id`, 'id');
+    }
+    if (element.arrival_time === undefined || element.arrival_time === null) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.arrival_time`, 'arrival_time');
+    }
+    if (element.enabled === undefined || element.enabled === null) {
+      addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.enabled`, 'enabled');
+    }
+    if (!element.threads || !Array.isArray(element.threads)) {
+      addDiagnostic(document, diagnostics, `Missing or invalid field: ${elementPath}.threads (must be an array)`, 'threads');
+    }
+    
+    // Verificar arrival_time
+    if (element.arrival_time < 0) {
+      addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be non-negative`, 'arrival_time');
+    }
+    
+    // Verificar IDs duplicados
+    if (element.id && ids.has(element.id)) {
+      addDiagnostic(document, diagnostics, `Duplicate process ID: ${element.id}`, 'id');
+    }
+    if (element.id) {
+      ids.add(element.id);
+    }
+    
+    // Validar threads
+    if (element.threads && Array.isArray(element.threads)) {
+      const threadIds = new Set<string>();
+      
+      element.threads.forEach((thread: any, threadIndex: number) => {
+        const threadPath = `${elementPath}.threads[${threadIndex}]`;
+        
+        if (!thread.id) {
+          addDiagnostic(document, diagnostics, `Missing required field: ${threadPath}.id`, 'id');
+        }
+        if (thread.enabled === undefined || thread.enabled === null) {
+          addDiagnostic(document, diagnostics, `Missing required field: ${threadPath}.enabled`, 'enabled');
+        }
+        if (!thread.bursts || !Array.isArray(thread.bursts)) {
+          addDiagnostic(document, diagnostics, `Missing or invalid field: ${threadPath}.bursts (must be an array)`, 'bursts');
+        }
+        
+        // Verificar IDs de threads duplicados
+        if (thread.id && threadIds.has(thread.id)) {
+          addDiagnostic(document, diagnostics, `Duplicate thread ID in ${elementPath}: ${thread.id}`, 'id');
+        }
+        if (thread.id) {
+          threadIds.add(thread.id);
+        }
+        
+        // Validar bursts
+        if (thread.bursts && Array.isArray(thread.bursts)) {
+          thread.bursts.forEach((burst: any, burstIndex: number) => {
+            const burstPath = `${threadPath}.bursts[${burstIndex}]`;
+            
+            if (!burst.type) {
+              addDiagnostic(document, diagnostics, `Missing required field: ${burstPath}.type`, 'type');
+            } else if (!['cpu', 'io'].includes(burst.type)) {
+              addDiagnostic(document, diagnostics, `Invalid burst type: ${burst.type}. Must be 'cpu' or 'io'`, 'type');
+            }
+            
+            if (burst.duration === undefined || burst.duration === null) {
+              addDiagnostic(document, diagnostics, `Missing required field: ${burstPath}.duration`, 'duration');
+            } else if (burst.duration < 0) {
+              addDiagnostic(document, diagnostics, `${burstPath}.duration must be non-negative`, 'duration');
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+function addDiagnostic(document: vscode.TextDocument, diagnostics: vscode.Diagnostic[], message: string, searchTerm: string) {
   const text = document.getText();
   const lines = text.split('\n');
   
-  // Intentar encontrar la línea con el error
   let line = 0;
   let character = 0;
   
-  if (error.instancePath) {
-    const path = error.instancePath.replace(/^\//, '').split('/');
-    const searchPattern = path[path.length - 1] || 'metadata|processes';
-    
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes(searchPattern)) {
-        line = i;
-        character = lines[i].indexOf(searchPattern);
-        break;
-      }
+  // Buscar la línea que contiene el término
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(`"${searchTerm}"`)) {
+      line = i;
+      character = lines[i].indexOf(`"${searchTerm}"`);
+      break;
     }
   }
   
   const range = new vscode.Range(line, character, line, lines[line]?.length || 0);
-  const message = `${error.message} (${error.instancePath || 'root'})`;
-  
-  return new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
-}
-
-function validateProcessElements(document: vscode.TextDocument, elements: any[], diagnostics: vscode.Diagnostic[]) {
-  const ids = new Set<string>();
-  
-  elements.forEach((element, index) => {
-    // Verificar IDs duplicados
-    if (ids.has(element.id)) {
-      const lines = document.getText().split('\n');
-      let line = 0;
-      
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes(`"id": "${element.id}"`)) {
-          line = i;
-          break;
-        }
-      }
-      
-      const range = new vscode.Range(line, 0, line, lines[line].length);
-      const diagnostic = new vscode.Diagnostic(
-        range,
-        `Duplicate process ID: ${element.id}`,
-        vscode.DiagnosticSeverity.Warning
-      );
-      diagnostics.push(diagnostic);
-    }
-    ids.add(element.id);
-    
-    // Verificar tiempos negativos
-    if (element.arrival_time < 0 || element.service_time < 0) {
-      const lines = document.getText().split('\n');
-      let line = 0;
-      
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes(`"id": "${element.id}"`)) {
-          line = i;
-          break;
-        }
-      }
-      
-      const range = new vscode.Range(line, 0, line, lines[line].length);
-      const diagnostic = new vscode.Diagnostic(
-        range,
-        'Arrival time and service time must be non-negative',
-        vscode.DiagnosticSeverity.Error
-      );
-      diagnostics.push(diagnostic);
-    }
-  });
+  const diagnostic = new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error);
+  diagnostics.push(diagnostic);
 }
 
 export function deactivate() {

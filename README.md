@@ -10,11 +10,16 @@ Una extensión de VS Code que proporciona soporte completo para archivos `.maso`
 - **Validaciones específicas**:
   - IDs de proceso únicos
   - Tiempos no negativos
-  - Modos de procesamiento válidos (regular, priority, round_robin)
+  - Modos de procesamiento válidos (regular, burst)
+  - Estructura específica según el modo:
+    - **Regular**: `service_time` requerido
+    - **Burst**: `threads` con `bursts` de tipo `cpu` o `io`
 - **Resaltado de sintaxis**: Palabras clave específicas de MASO resaltadas
 - **Autocompletado**: Sugerencias para campos válidos
 
 ## Estructura de archivos MASO
+
+### Modo Regular
 
 ```json
 {
@@ -31,6 +36,44 @@ Una extensión de VS Code que proporciona soporte completo para archivos `.maso`
         "arrival_time": 0,
         "service_time": 3,
         "enabled": true
+      }
+    ]
+  }
+}
+```
+
+### Modo Burst
+
+```json
+{
+  "metadata": {
+    "name": "Ejercicio en modo ráfagas",
+    "version": "1.0.0",
+    "description": "Procesos con threads y bursts"
+  },
+  "processes": {
+    "mode": "burst",
+    "elements": [
+      {
+        "id": "P1",
+        "arrival_time": 0,
+        "enabled": true,
+        "threads": [
+          {
+            "id": "T0",
+            "enabled": true,
+            "bursts": [
+              {
+                "type": "cpu",
+                "duration": 3
+              },
+              {
+                "type": "io",
+                "duration": 2
+              }
+            ]
+          }
+        ]
       }
     ]
   }

@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "name": "Test Process",
+    "version": "1.0.0",
+    "description": "A test MASO file"
+  },
+  "processes": {
+    "mode": "regular",
+    "elements": [
+      { "id": "A", "arrival_time": 0, "service_time": 3, "enabled": true },
+      { "id": "B", "arrival_time": 1, "service_time": 2, "enabled": true }
+    ]
+  }
+}
