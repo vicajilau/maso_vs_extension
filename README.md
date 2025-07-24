@@ -1,5 +1,7 @@
 # MASO File Support
 
+![CI](https://github.com/vicajilau/maso_vs_extension/workflows/CI%20-%20Test%20Extension/badge.svg)
+
 A VS Code extension that provides comprehensive support for `.maso` files with JSON validation, syntax highlighting, and real-time diagnostics.
 
 ![MASO Extension Demo](.github/assets/demo.png)
