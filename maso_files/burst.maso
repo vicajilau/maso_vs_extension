@@ -1,8 +1,8 @@
 {
     "metadata": {
-        "name": "PED 2030",
+        "name": "Operating Systems 2030",
         "version": "1.0.0",
-        "description": "Ejercicio en modo ráfagas"
+        "description": "Exercise in burst mode"
     },
     "processes": {
         "mode": "burst",

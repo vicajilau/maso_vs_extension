@@ -5,17 +5,17 @@ let diagnosticCollection: vscode.DiagnosticCollection;
 export function activate(context: vscode.ExtensionContext) {
   console.log('MASO File Support extension is now active!');
 
-  // Crear colección de diagnósticos
+  // Create diagnostic collection
   diagnosticCollection = vscode.languages.createDiagnosticCollection('maso');
   context.subscriptions.push(diagnosticCollection);
 
-  // Validar archivos al abrirlos o cambiarlos
+  // Validate files when opened or changed
   const activeEditor = vscode.window.activeTextEditor;
   if (activeEditor && isMasoFile(activeEditor.document)) {
     validateMasoFile(activeEditor.document);
   }
 
-  // Listener para cambios en editores
+  // Listener for editor changes
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(editor => {
       if (editor && isMasoFile(editor.document)) {
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Listener para cambios en documentos
+  // Listener for document changes
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument(event => {
       if (isMasoFile(event.document)) {
@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Comando para validar manualmente
+  // Command to validate manually
   const validateCommand = vscode.commands.registerCommand('maso-file-support.validateFile', () => {
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor && isMasoFile(activeEditor.document)) {
@@ -89,7 +89,7 @@ function validateMasoFile(document: vscode.TextDocument) {
 }
 
 function validateBasicStructure(document: vscode.TextDocument, jsonData: any, diagnostics: vscode.Diagnostic[]) {
-  // Validar metadata
+  // Validate metadata
   if (!jsonData.metadata) {
     addDiagnostic(document, diagnostics, 'Missing required field: metadata', 'metadata');
   } else {
@@ -104,7 +104,7 @@ function validateBasicStructure(document: vscode.TextDocument, jsonData: any, di
     }
   }
   
-  // Validar processes
+  // Validate processes
   if (!jsonData.processes) {
     addDiagnostic(document, diagnostics, 'Missing required field: processes', 'processes');
   } else {
@@ -123,7 +123,7 @@ function validateRegularMode(document: vscode.TextDocument, elements: any[], dia
   elements.forEach((element, index) => {
     const elementPath = `elements[${index}]`;
     
-    // Verificar campos requeridos
+    // Verify required fields
     if (!element.id) {
       addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.id`, 'id');
     }
@@ -137,7 +137,7 @@ function validateRegularMode(document: vscode.TextDocument, elements: any[], dia
       addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.enabled`, 'enabled');
     }
     
-    // Verificar tipos y valores
+    // Verify types and values
     if (element.arrival_time < 0) {
       addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be non-negative`, 'arrival_time');
     }
@@ -145,7 +145,7 @@ function validateRegularMode(document: vscode.TextDocument, elements: any[], dia
       addDiagnostic(document, diagnostics, `${elementPath}.service_time must be non-negative`, 'service_time');
     }
     
-    // Verificar IDs duplicados
+    // Verify duplicate IDs
     if (element.id && ids.has(element.id)) {
       addDiagnostic(document, diagnostics, `Duplicate process ID: ${element.id}`, 'id');
     }
@@ -161,7 +161,7 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
   elements.forEach((element, index) => {
     const elementPath = `elements[${index}]`;
     
-    // Verificar campos requeridos para modo burst
+    // Verify required fields for burst mode
     if (!element.id) {
       addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.id`, 'id');
     }
@@ -175,12 +175,12 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
       addDiagnostic(document, diagnostics, `Missing or invalid field: ${elementPath}.threads (must be an array)`, 'threads');
     }
     
-    // Verificar arrival_time
+    // Verify arrival_time
     if (element.arrival_time < 0) {
       addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be non-negative`, 'arrival_time');
     }
     
-    // Verificar IDs duplicados
+    // Verify duplicate IDs
     if (element.id && ids.has(element.id)) {
       addDiagnostic(document, diagnostics, `Duplicate process ID: ${element.id}`, 'id');
     }
@@ -188,7 +188,7 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
       ids.add(element.id);
     }
     
-    // Validar threads
+    // Validate threads
     if (element.threads && Array.isArray(element.threads)) {
       const threadIds = new Set<string>();
       
@@ -205,7 +205,7 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
           addDiagnostic(document, diagnostics, `Missing or invalid field: ${threadPath}.bursts (must be an array)`, 'bursts');
         }
         
-        // Verificar IDs de threads duplicados
+        // Verify duplicate thread IDs
         if (thread.id && threadIds.has(thread.id)) {
           addDiagnostic(document, diagnostics, `Duplicate thread ID in ${elementPath}: ${thread.id}`, 'id');
         }
@@ -213,7 +213,7 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
           threadIds.add(thread.id);
         }
         
-        // Validar bursts
+        // Validate bursts
         if (thread.bursts && Array.isArray(thread.bursts)) {
           thread.bursts.forEach((burst: any, burstIndex: number) => {
             const burstPath = `${threadPath}.bursts[${burstIndex}]`;
@@ -243,7 +243,7 @@ function addDiagnostic(document: vscode.TextDocument, diagnostics: vscode.Diagno
   let line = 0;
   let character = 0;
   
-  // Buscar la línea que contiene el término
+  // Search for the line containing the term
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].includes(`"${searchTerm}"`)) {
       line = i;

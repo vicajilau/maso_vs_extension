@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Test Process",
     "version": "1.0.0",
-    "description": "A test MASO file"
+    "description": "A test MASO file for regular mode"
   },
   "processes": {
     "mode": "regular",

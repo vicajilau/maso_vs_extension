@@ -18,14 +18,26 @@ This extension provides:
 
 MASO files contain process scheduling information with the following schema:
 
+### Regular Mode
+
 - `metadata`: Contains name, version, and description
-- `processes`: Contains mode (regular/priority/round_robin) and elements array
+- `processes`: Contains mode (regular) and elements array
 - Each process element has: id, arrival_time, service_time, enabled
+
+### Burst Mode
+
+- `metadata`: Contains name, version, and description
+- `processes`: Contains mode (burst) and elements array
+- Each process element has: id, arrival_time, enabled, threads
+- Each thread has: id, enabled, bursts
+- Each burst has: type (cpu/io), duration
 
 ## Development Guidelines
 
 - Use TypeScript for type safety
 - Leverage VS Code's diagnostic API for error reporting
-- Implement JSON schema validation using AJV
+- Implement custom validation logic for both regular and burst modes
 - Follow VS Code extension best practices
 - Test with real .maso files during development
+- All user-facing strings should be in English
+- Comments and documentation should be in English
