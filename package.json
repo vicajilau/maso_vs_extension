@@ -87,6 +87,8 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
+    "test:unit": "npm run compile-tests && vscode-test",
+    "test:watch": "npm run watch-tests",
     "vsce:package": "vsce package",
     "vsce:publish": "vsce publish"
   },

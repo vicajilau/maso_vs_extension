@@ -130,7 +130,9 @@ This extension contributes the following settings:
 
 - `npm run compile`: Compile TypeScript and run linting
 - `npm run watch`: Compile in watch mode (recompiles automatically)
-- `npm run test`: Run tests
+- `npm run test`: Run automated tests
+- `npm run test:unit`: Run tests with unit focus
+- `npm run test:watch`: Watch tests during development
 - `npm run vsce:package`: Create VSIX package for distribution
 - `npm run vsce:publish`: Publish to marketplace
 
@@ -161,12 +163,37 @@ This extension contributes the following settings:
    # 1. Compile and verify
    npm run compile
 
-   # 2. Create VSIX package
+   # 2. Run tests to ensure quality
+   npm test
+
+   # 3. Create VSIX package
    npm run vsce:package
 
-   # 3. Install locally to test
+   # 4. Install locally to test
    code --install-extension maso-file-support-0.0.1.vsix
    ```
+
+### Testing
+
+The extension includes comprehensive automated tests to ensure validation accuracy:
+
+- **Type validation tests**: Verify correct data types (string, integer, boolean)
+- **Value validation tests**: Check non-negative numbers and valid ranges
+- **Structure tests**: Ensure required fields and proper nesting
+- **Mode-specific tests**: Validate regular vs burst mode differences
+- **Error detection tests**: Confirm proper diagnostic messages
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode during development
+npm run test:watch
+
+# Test from VS Code: Use "Run Extension Tests" debug configuration
+```
+
+See [TESTING.md](TESTING.md) for detailed testing documentation.
 
 ### Why compile before packaging?
 
@@ -180,10 +207,6 @@ This extension contributes the following settings:
 
 ```
 maso_vs_extension/
-├── src/
-│   └── extension.ts          # Main extension code
-├── syntaxes/
-│   └── maso.tmGrammar.json   # Grammar for syntax highlighting
 ├── .github/
 │   └── assets/               # Demo images and assets
 │       ├── demo.png         # Demo screenshot
@@ -191,9 +214,17 @@ maso_vs_extension/
 ├── maso_files/               # Example files
 │   ├── burst.maso           # Burst mode example
 │   └── regular.maso         # Regular mode example
+├── src/
+│   └── extension.ts         # Main extension code
+├── test/                     # Test suite (outside of src)
+│   └── extension.test.ts    # Automated tests
+├── syntaxes/
+│   └── maso.tmGrammar.json  # Grammar for syntax highlighting
 ├── dist/                     # Compiled JavaScript (generated)
+├── out/                      # Test compilation output (generated)
 ├── package.json              # Extension configuration
 ├── language-configuration.json # Language configuration
+├── TESTING.md               # Testing documentation
 └── README.md
 ```
 
