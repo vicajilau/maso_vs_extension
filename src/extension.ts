@@ -1,10 +1,61 @@
 import * as vscode from 'vscode';
+import * as yaml from 'js-yaml';
 import { configureLanguageAssociation } from './languageConfiguration';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('MASO File Support extension is now active!');
+
+  // Force immediate configuration of file associations
+  const forceFileAssociations = async () => {
+    const config = vscode.workspace.getConfiguration();
+    const currentAssociations = config.get<Record<string, string>>('files.associations', {});
+    
+    if (currentAssociations['*.maso'] !== 'maso') {
+      console.log('Forcing MASO file associations...');
+      
+      try {
+        // Set globally
+        await config.update('files.associations', 
+          { ...currentAssociations, '*.maso': 'maso' }, 
+          vscode.ConfigurationTarget.Global
+        );
+        
+        // Set for workspace  
+        await config.update('files.associations',
+          { ...currentAssociations, '*.maso': 'maso' },
+          vscode.ConfigurationTarget.Workspace
+        );
+        
+        console.log('File associations updated successfully');
+      } catch (error) {
+        console.error('Failed to update file associations:', error);
+      }
+    }
+  };
+
+  // Execute immediately
+  forceFileAssociations();
+
+  // Force detection of all currently open .maso files
+  const forceDetectOpenMasoFiles = () => {
+    vscode.workspace.textDocuments.forEach(document => {
+      if (document.fileName.toLowerCase().endsWith('.maso') && document.languageId !== 'maso') {
+        console.log(`Force-setting language for: ${document.fileName} (current: ${document.languageId})`);
+        vscode.languages.setTextDocumentLanguage(document, 'maso').then(() => {
+          console.log(`Successfully set language for: ${document.fileName}`);
+        }, (error: any) => {
+          console.error(`Failed to set language for ${document.fileName}:`, error);
+        });
+      }
+    });
+  };
+
+  // Execute with delays to ensure VS Code is ready
+  setTimeout(forceDetectOpenMasoFiles, 100);
+  setTimeout(forceDetectOpenMasoFiles, 500);
+  setTimeout(forceDetectOpenMasoFiles, 1000);
 
   // Configure language association
   configureLanguageAssociation(context);
@@ -73,30 +124,50 @@ function validateMasoFile(document: vscode.TextDocument) {
   
   try {
     const text = document.getText();
-    const jsonData = JSON.parse(text);
+    let masoData: any;
+    
+    // Try to parse as YAML first, then fall back to JSON
+    try {
+      masoData = yaml.load(text);
+    } catch (yamlError) {
+      try {
+        masoData = JSON.parse(text);
+      } catch (jsonError) {
+        // Both YAML and JSON parsing failed
+        const lines = document.getText().split('\n');
+        const diagnostic = new vscode.Diagnostic(
+          new vscode.Range(0, 0, lines.length - 1, lines[lines.length - 1].length),
+          'Invalid YAML/JSON format in MASO file',
+          vscode.DiagnosticSeverity.Error
+        );
+        diagnostics.push(diagnostic);
+        diagnosticCollection.set(document.uri, diagnostics);
+        return;
+      }
+    }
     
     // Validaciones básicas de estructura
-    validateBasicStructure(document, jsonData, diagnostics);
+    validateBasicStructure(document, masoData, diagnostics);
     
     // Validaciones específicas según el modo
-    if (jsonData.processes && jsonData.processes.mode && jsonData.processes.elements) {
-      const mode = jsonData.processes.mode;
+    if (masoData.processes && masoData.processes.mode && masoData.processes.elements) {
+      const mode = masoData.processes.mode;
       
       if (mode === 'burst') {
-        validateBurstMode(document, jsonData.processes.elements, diagnostics);
+        validateBurstMode(document, masoData.processes.elements, diagnostics);
       } else if (mode === 'regular') {
-        validateRegularMode(document, jsonData.processes.elements, diagnostics);
+        validateRegularMode(document, masoData.processes.elements, diagnostics);
       } else {
         addDiagnostic(document, diagnostics, `Invalid mode: ${mode}. Must be one of: regular, burst`, 'mode');
       }
     }
     
   } catch (error) {
-    // Error de parseo JSON
+    // Error general
     const lines = document.getText().split('\n');
     const diagnostic = new vscode.Diagnostic(
       new vscode.Range(0, 0, lines.length - 1, lines[lines.length - 1].length),
-      'Invalid JSON format in MASO file',
+      'Error processing MASO file',
       vscode.DiagnosticSeverity.Error
     );
     diagnostics.push(diagnostic);

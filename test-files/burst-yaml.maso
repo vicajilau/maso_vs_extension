@@ -1,0 +1,43 @@
+metadata:
+  name: "Valid Burst MASO File"
+  version: "1.0.0"
+  description: "A valid burst MASO file in YAML format"
+
+processes:
+  mode: burst
+  elements:
+    - id: "P1"
+      arrival_time: 0
+      enabled: true
+      threads:
+        - id: "T0"
+          enabled: true
+          bursts:
+            - type: cpu
+              duration: 3
+            - type: io
+              duration: 2
+            - type: cpu
+              duration: 5
+        - id: "T1"
+          enabled: true
+          bursts:
+            - type: cpu
+              duration: 4
+            - type: io
+              duration: 3
+            - type: cpu
+              duration: 6
+    - id: "P2"
+      arrival_time: 5
+      enabled: true
+      threads:
+        - id: "T0"
+          enabled: true
+          bursts:
+            - type: cpu
+              duration: 7
+            - type: io
+              duration: 2
+            - type: cpu
+              duration: 4

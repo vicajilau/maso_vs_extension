@@ -1,10 +1,10 @@
 {
     "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
     "name": "MASO",
-    "scopeName": "source.json.maso",
+    "scopeName": "source.maso",
     "patterns": [
         {
-            "include": "source.json"
+            "include": "source.yaml"
         },
         {
             "match": "\\b(metadata|processes|mode|elements|id|arrival_time|service_time|enabled|name|version|description|threads|bursts|type|duration)\\b",
@@ -17,6 +17,14 @@
         {
             "match": "\\b(cpu|io)\\b",
             "name": "constant.language.maso.burst"
+        },
+        {
+            "match": "^\\s*(metadata|processes|mode|elements)\\s*:",
+            "captures": {
+                "1": {
+                    "name": "entity.name.tag.maso"
+                }
+            }
         }
     ]
 }
