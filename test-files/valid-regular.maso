@@ -10,8 +10,8 @@
       {
         "id": "A",
         "arrival_time": 0,
-        "service_time": "3",
-        "enabled": "true"
+        "service_time": 3,
+        "enabled": true
       },
       {
         "id": "B",
