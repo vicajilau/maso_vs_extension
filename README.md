@@ -1,6 +1,9 @@
-# MASO File Support
+<h1 align="center">MASO VS Code Extension</h1>
 
-![CI](https://github.com/vicajilau/maso_vs_extension/workflows/CI%20-%20Test%20Extension/badge.svg)
+<p align="center">
+  <img src="https://github.com/vicajilau/maso_vs_extension/workflows/CI%20-%20Test%20Extension/badge.svg" alt="CI">
+  <img src="https://github.com/vicajilau/maso_vs_extension/workflows/Publish%20Extension/badge.svg" alt="CD">
+</p>
 
 A VS Code extension that provides comprehensive support for `.maso` files with JSON validation, syntax highlighting, and real-time diagnostics.
 
@@ -242,22 +245,6 @@ maso_vs_extension/
 └── README.md
 ```
 
-## Known Issues
-
-There are currently no known issues. Please report any issues in the project repository.
-
-## Version History
-
-### 0.0.1
-
-- Initial release
-- Basic support for .maso files
-- JSON schema validation
-- Syntax highlighting
-- Real-time diagnostics
-
----
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -284,7 +271,7 @@ Contributions are welcome! Please follow these steps:
    npm run vsce:package
 
    # Install it locally
-   code --install-extension maso-file-support-0.0.1.vsix
+   code --install-extension maso-file-support-x.y.z.vsix
    ```
 
 5. **Commit and push:**
