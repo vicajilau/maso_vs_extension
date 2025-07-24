@@ -4,7 +4,7 @@
   "description": "VS Code extension for .maso files with JSON validation and schema support",
   "version": "0.0.1",
   "publisher": "vicajilau",
-  "icon": "images/icon.png",
+  "icon": ".github/assets/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/vicajilau/maso_vs_extension.git"

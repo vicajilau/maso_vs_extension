@@ -2,6 +2,10 @@
 
 A VS Code extension that provides comprehensive support for `.maso` files with JSON validation, syntax highlighting, and real-time diagnostics.
 
+![MASO Extension Demo](.github/assets/demo.png)
+
+_The extension automatically detects `.maso` files and provides real-time validation with detailed error messages, as shown above where an invalid mode "unknown" is highlighted with a clear diagnostic message._
+
 ## Features
 
 - **Automatic recognition**: `.maso` files are automatically recognized as JSON
@@ -180,8 +184,10 @@ maso_vs_extension/
 │   └── extension.ts          # Main extension code
 ├── syntaxes/
 │   └── maso.tmGrammar.json   # Grammar for syntax highlighting
-├── images/
-│   └── icon.png              # Extension icon
+├── .github/
+│   └── assets/               # Demo images and assets
+│       ├── demo.png         # Demo screenshot
+│       └── icon.png         # Extension icon
 ├── maso_files/               # Example files
 │   ├── burst.maso           # Burst mode example
 │   └── regular.maso         # Regular mode example
