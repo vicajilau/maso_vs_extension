@@ -195,6 +195,18 @@ npm run test:watch
 
 See [TESTING.md](TESTING.md) for detailed testing documentation.
 
+### Continuous Integration
+
+The project uses GitHub Actions for automated testing:
+
+- ✅ **Multi-platform testing**: Tests run on Ubuntu, Windows, and macOS
+- ✅ **Automated on push**: Tests run automatically on every push to `main`
+- ✅ **Pull request checks**: Tests run on every pull request
+- ✅ **Linting and type checking**: Code quality checks before tests
+- ✅ **Extension packaging**: Automatic VSIX creation on successful tests
+
+Status: ![CI](https://github.com/vicajilau/maso_vs_extension/workflows/CI%20-%20Test%20Extension/badge.svg)
+
 ### Why compile before packaging?
 
 - **TypeScript → JavaScript**: Source code is in TypeScript but VS Code runs JavaScript

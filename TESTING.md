@@ -35,6 +35,32 @@ Or use the debug configuration:
 2. Select "Run Extension Tests"
 3. Press F5
 
+### Continuous Integration
+
+The project uses GitHub Actions for automated testing on every push:
+
+- **Workflow file**: `.github/workflows/ci.yml`
+- **Triggers**: Push to `main` branch and pull requests
+- **Platforms**: Ubuntu, Windows, and macOS
+- **Steps**: Install → Lint → Type Check → Compile → Test → Package
+
+#### CI Status
+
+You can check the current status at: https://github.com/vicajilau/maso_vs_extension/actions
+
+#### Local CI Simulation
+
+To run the same checks locally as in CI:
+
+```bash
+npm ci              # Clean install (like CI)
+npm run lint        # Linting checks
+npm run check-types # TypeScript type checking
+npm run compile     # Compilation
+npm test            # Run tests
+npm run vsce:package # Package extension
+```
+
 ## Test Structure
 
 ### Test Categories
