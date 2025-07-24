@@ -1,18 +1,35 @@
 import * as vscode from 'vscode';
+import { configureLanguageAssociation } from './languageConfiguration';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('MASO File Support extension is now active!');
 
+  // Configure language association
+  configureLanguageAssociation(context);
+
   // Create diagnostic collection
   diagnosticCollection = vscode.languages.createDiagnosticCollection('maso');
   context.subscriptions.push(diagnosticCollection);
 
+  // Force language detection for .maso files
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument(document => {
+      if (document.fileName.endsWith('.maso') && document.languageId !== 'maso') {
+        vscode.languages.setTextDocumentLanguage(document, 'maso');
+      }
+    })
+  );
+
+  // Also check active editor on activation
+  if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.fileName.endsWith('.maso') && vscode.window.activeTextEditor.document.languageId !== 'maso') {
+    vscode.languages.setTextDocumentLanguage(vscode.window.activeTextEditor.document, 'maso');
+  }
+
   // Validate files when opened or changed
-  const activeEditor = vscode.window.activeTextEditor;
-  if (activeEditor && isMasoFile(activeEditor.document)) {
-    validateMasoFile(activeEditor.document);
+  if (vscode.window.activeTextEditor && isMasoFile(vscode.window.activeTextEditor.document)) {
+    validateMasoFile(vscode.window.activeTextEditor.document);
   }
 
   // Listener for editor changes

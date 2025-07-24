@@ -48,10 +48,18 @@
     "grammars": [
       {
         "language": "maso",
-        "scopeName": "source.json.maso",
+        "scopeName": "source.maso",
         "path": "./syntaxes/maso.tmGrammar.json"
       }
     ],
+    "configurationDefaults": {
+      "[maso]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+      },
+      "files.associations": {
+        "*.maso": "maso"
+      }
+    },
     "commands": [
       {
         "command": "maso-file-support.validateFile",
