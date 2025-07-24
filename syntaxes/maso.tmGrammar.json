@@ -1,0 +1,18 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "MASO",
+    "scopeName": "source.json.maso",
+    "patterns": [
+        {
+            "include": "source.json"
+        },
+        {
+            "match": "\\b(metadata|processes|mode|elements|id|arrival_time|service_time|enabled|name|version|description)\\b",
+            "name": "keyword.other.maso"
+        },
+        {
+            "match": "\\b(regular|priority|round_robin)\\b",
+            "name": "constant.language.maso"
+        }
+    ]
+}
