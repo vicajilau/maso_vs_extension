@@ -123,7 +123,7 @@ function validateRegularMode(document: vscode.TextDocument, elements: any[], dia
   elements.forEach((element, index) => {
     const elementPath = `elements[${index}]`;
     
-    // Verify required fields
+    // Verify required fields exist
     if (!element.id) {
       addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.id`, 'id');
     }
@@ -137,11 +137,25 @@ function validateRegularMode(document: vscode.TextDocument, elements: any[], dia
       addDiagnostic(document, diagnostics, `Missing required field: ${elementPath}.enabled`, 'enabled');
     }
     
-    // Verify types and values
-    if (element.arrival_time < 0) {
+    // Verify correct types
+    if (element.id !== undefined && typeof element.id !== 'string') {
+      addDiagnostic(document, diagnostics, `${elementPath}.id must be a string`, 'id');
+    }
+    if (element.arrival_time !== undefined && (!Number.isInteger(element.arrival_time) || typeof element.arrival_time !== 'number')) {
+      addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be an integer`, 'arrival_time');
+    }
+    if (element.service_time !== undefined && (!Number.isInteger(element.service_time) || typeof element.service_time !== 'number')) {
+      addDiagnostic(document, diagnostics, `${elementPath}.service_time must be an integer`, 'service_time');
+    }
+    if (element.enabled !== undefined && typeof element.enabled !== 'boolean') {
+      addDiagnostic(document, diagnostics, `${elementPath}.enabled must be a boolean (true or false)`, 'enabled');
+    }
+    
+    // Verify values (only if types are correct)
+    if (typeof element.arrival_time === 'number' && element.arrival_time < 0) {
       addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be non-negative`, 'arrival_time');
     }
-    if (element.service_time < 0) {
+    if (typeof element.service_time === 'number' && element.service_time < 0) {
       addDiagnostic(document, diagnostics, `${elementPath}.service_time must be non-negative`, 'service_time');
     }
     
@@ -175,8 +189,19 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
       addDiagnostic(document, diagnostics, `Missing or invalid field: ${elementPath}.threads (must be an array)`, 'threads');
     }
     
-    // Verify arrival_time
-    if (element.arrival_time < 0) {
+    // Verify types for burst mode
+    if (element.id !== undefined && typeof element.id !== 'string') {
+      addDiagnostic(document, diagnostics, `${elementPath}.id must be a string`, 'id');
+    }
+    if (element.arrival_time !== undefined && (!Number.isInteger(element.arrival_time) || typeof element.arrival_time !== 'number')) {
+      addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be an integer`, 'arrival_time');
+    }
+    if (element.enabled !== undefined && typeof element.enabled !== 'boolean') {
+      addDiagnostic(document, diagnostics, `${elementPath}.enabled must be a boolean (true or false)`, 'enabled');
+    }
+    
+    // Verify values (only if types are correct)
+    if (typeof element.arrival_time === 'number' && element.arrival_time < 0) {
       addDiagnostic(document, diagnostics, `${elementPath}.arrival_time must be non-negative`, 'arrival_time');
     }
     
@@ -205,6 +230,14 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
           addDiagnostic(document, diagnostics, `Missing or invalid field: ${threadPath}.bursts (must be an array)`, 'bursts');
         }
         
+        // Verify thread types
+        if (thread.id !== undefined && typeof thread.id !== 'string') {
+          addDiagnostic(document, diagnostics, `${threadPath}.id must be a string`, 'id');
+        }
+        if (thread.enabled !== undefined && typeof thread.enabled !== 'boolean') {
+          addDiagnostic(document, diagnostics, `${threadPath}.enabled must be a boolean (true or false)`, 'enabled');
+        }
+        
         // Verify duplicate thread IDs
         if (thread.id && threadIds.has(thread.id)) {
           addDiagnostic(document, diagnostics, `Duplicate thread ID in ${elementPath}: ${thread.id}`, 'id');
@@ -220,12 +253,16 @@ function validateBurstMode(document: vscode.TextDocument, elements: any[], diagn
             
             if (!burst.type) {
               addDiagnostic(document, diagnostics, `Missing required field: ${burstPath}.type`, 'type');
+            } else if (typeof burst.type !== 'string') {
+              addDiagnostic(document, diagnostics, `${burstPath}.type must be a string`, 'type');
             } else if (!['cpu', 'io'].includes(burst.type)) {
               addDiagnostic(document, diagnostics, `Invalid burst type: ${burst.type}. Must be 'cpu' or 'io'`, 'type');
             }
             
             if (burst.duration === undefined || burst.duration === null) {
               addDiagnostic(document, diagnostics, `Missing required field: ${burstPath}.duration`, 'duration');
+            } else if (!Number.isInteger(burst.duration) || typeof burst.duration !== 'number') {
+              addDiagnostic(document, diagnostics, `${burstPath}.duration must be an integer`, 'duration');
             } else if (burst.duration < 0) {
               addDiagnostic(document, diagnostics, `${burstPath}.duration must be non-negative`, 'duration');
             }
