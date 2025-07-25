@@ -2,7 +2,7 @@
   "name": "maso-file-support",
   "displayName": "MASO File Support",
   "description": "VS Code extension for .maso files with JSON validation and schema support",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "vicajilau",
   "icon": ".github/assets/icon.png",
   "repository": {
@@ -27,6 +27,9 @@
     "Programming Languages"
   ],
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "languages": [
       {
@@ -69,6 +72,11 @@
           "light": "./icons/icon.png",
           "dark": "./icons/icon.png"
         }
+      },
+      {
+        "command": "maso-file-support.diagnoseDetection",
+        "title": "Diagnose MASO File Detection",
+        "category": "MASO"
       }
     ],
     "configuration": {

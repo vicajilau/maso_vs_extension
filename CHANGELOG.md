@@ -4,6 +4,12 @@ All notable changes to the "maso_vs_extension" extension will be documented in t
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.2.0]
+
+- Fixed some files where not detected.
+- Improved MASO detection.
+- Added Diagnose MASO File Detection command.
+
 ## [0.1.0]
 
 - Enhanced icon support for MASO files across VS Code interface
