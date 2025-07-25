@@ -5,7 +5,7 @@
   <img src="https://github.com/vicajilau/maso_vs_extension/workflows/Publish%20Extension/badge.svg" alt="CD">
 </p>
 
-A VS Code extension that provides comprehensive support for `.maso` files with YAML/JSON validation, syntax highlighting, and real-time diagnostics.
+A VS Code extension that provides comprehensive support for `.maso` files with JSON validation, syntax highlighting, and real-time diagnostics.
 
 ![MASO Extension Demo](.github/assets/demo.png)
 
@@ -13,8 +13,7 @@ _The extension automatically detects `.maso` files and provides real-time valida
 
 ## Features
 
-- **Automatic recognition**: `.maso` files are automatically recognized as MASO language
-- **Dual format support**: Supports both YAML and JSON formats
+- **Automatic recognition**: `.maso` files are automatically recognized as JSON
 - **Schema validation**: Real-time validation of MASO file structure
 - **Advanced diagnostics**: Detects structure errors, missing fields, and incorrect types
 - **Specific validations**:
@@ -88,51 +87,6 @@ _The extension automatically detects `.maso` files and provides real-time valida
     ]
   }
 }
-```
-
-## YAML Format (Recommended)
-
-MASO files also support YAML format, which is more readable and eliminates conflicts with JSON detection:
-
-### Regular Mode (YAML)
-
-```yaml
-metadata:
-  name: "Process Name"
-  version: "1.0.0"
-  description: "Process description"
-
-processes:
-  mode: regular
-  elements:
-    - id: "A"
-      arrival_time: 0
-      service_time: 3
-      enabled: true
-```
-
-### Burst Mode (YAML)
-
-```yaml
-metadata:
-  name: "Burst Mode Exercise"
-  version: "1.0.0"
-  description: "Processes with threads and bursts"
-
-processes:
-  mode: burst
-  elements:
-    - id: "P1"
-      arrival_time: 0
-      enabled: true
-      threads:
-        - id: "T0"
-          enabled: true
-          bursts:
-            - type: cpu
-              duration: 3
-            - type: io
-              duration: 2
 ```
 
 ## Requirements
