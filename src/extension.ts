@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as yaml from 'js-yaml';
 import { configureLanguageAssociation } from './languageConfiguration';
 
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -126,24 +125,20 @@ function validateMasoFile(document: vscode.TextDocument) {
     const text = document.getText();
     let masoData: any;
     
-    // Try to parse as YAML first, then fall back to JSON
+    // Try to parse as JSON
     try {
-      masoData = yaml.load(text);
-    } catch (yamlError) {
-      try {
-        masoData = JSON.parse(text);
-      } catch (jsonError) {
-        // Both YAML and JSON parsing failed
-        const lines = document.getText().split('\n');
-        const diagnostic = new vscode.Diagnostic(
-          new vscode.Range(0, 0, lines.length - 1, lines[lines.length - 1].length),
-          'Invalid YAML/JSON format in MASO file',
-          vscode.DiagnosticSeverity.Error
-        );
-        diagnostics.push(diagnostic);
-        diagnosticCollection.set(document.uri, diagnostics);
-        return;
-      }
+      masoData = JSON.parse(text);
+    } catch (jsonError) {
+      // JSON parsing failed
+      const lines = document.getText().split('\n');
+      const diagnostic = new vscode.Diagnostic(
+        new vscode.Range(0, 0, lines.length - 1, lines[lines.length - 1].length),
+        'Invalid JSON format in MASO file',
+        vscode.DiagnosticSeverity.Error
+      );
+      diagnostics.push(diagnostic);
+      diagnosticCollection.set(document.uri, diagnostics);
+      return;
     }
     
     // Validaciones básicas de estructura
